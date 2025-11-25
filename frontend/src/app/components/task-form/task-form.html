@@ -1,0 +1,77 @@
+<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="px-6 py-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">
+                {{ isEditMode ? 'Edit Task' : 'Create New Task' }}
+            </h2>
+
+            <div *ngIf="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 relative"
+                role="alert">
+                <span class="block sm:inline">{{ error }}</span>
+            </div>
+
+            <form [formGroup]="taskForm" (ngSubmit)="onSubmit()">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="title">
+                        Title
+                    </label>
+                    <input
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-blue-500"
+                        id="title" type="text" placeholder="Task Title" formControlName="title">
+                    <div *ngIf="taskForm.get('title')?.invalid && taskForm.get('title')?.touched"
+                        class="text-red-500 text-xs italic mt-1">
+                        Title is required (min 3 chars).
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="priority">
+                        Priority
+                    </label>
+                    <select
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-blue-500"
+                        id="priority" formControlName="priority">
+                        <option value="LOW">Low</option>
+                        <option value="MEDIUM">Medium</option>
+                        <option value="HIGH">High</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="status">
+                        Status
+                    </label>
+                    <select
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-blue-500"
+                        id="status" formControlName="status">
+                        <option value="PENDING">Pending</option>
+                        <option value="IN_PROGRESS">In Progress</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="CANCELLED">Cancelled</option>
+                    </select>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="deadline">
+                        Deadline
+                    </label>
+                    <input
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-blue-500"
+                        id="deadline" type="date" formControlName="deadline">
+                </div>
+
+                <div class="flex items-center justify-between gap-4">
+                    <a routerLink="/dashboard"
+                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full text-center transition">
+                        Cancel
+                    </a>
+                    <button
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full transition disabled:opacity-50"
+                        type="submit" [disabled]="taskForm.invalid || isLoading">
+                        {{ isLoading ? 'Saving...' : (isEditMode ? 'Update' : 'Create') }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

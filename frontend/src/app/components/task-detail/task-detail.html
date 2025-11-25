@@ -1,0 +1,92 @@
+<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8" *ngIf="task">
+    <div class="max-w-3xl mx-auto">
+        <!-- Task Header -->
+        <div class="bg-white shadow rounded-lg p-6 mb-6">
+            <div class="flex justify-between items-start mb-4">
+                <h1 class="text-3xl font-bold text-gray-900">{{ task.title }}</h1>
+                <div class="flex gap-2">
+                    <a [routerLink]="['/tasks', task.id, 'edit']"
+                        class="bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200 transition">Edit</a>
+                    <a routerLink="/dashboard"
+                        class="bg-gray-100 text-gray-700 px-3 py-1 rounded hover:bg-gray-200 transition">Back</a>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-gray-600">
+                <div>
+                    <span class="font-semibold">Priority:</span> {{ task.priority }}
+                </div>
+                <div>
+                    <span class="font-semibold">Status:</span> {{ task.status }}
+                </div>
+                <div>
+                    <span class="font-semibold">Deadline:</span> {{ task.deadline | date:'mediumDate' }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Subtasks Section -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">Subtasks</h2>
+
+            <!-- Add Subtask Form -->
+            <form [formGroup]="subTaskForm" (ngSubmit)="addSubTask()"
+                class="mb-6 bg-gray-50 p-4 rounded border border-gray-200">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                    <div class="md:col-span-5">
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Title</label>
+                        <input type="text" formControlName="title" class="w-full border rounded px-2 py-1 text-sm"
+                            placeholder="Subtask title">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Priority</label>
+                        <select formControlName="priority" class="w-full border rounded px-2 py-1 text-sm">
+                            <option value="LOW">Low</option>
+                            <option value="MEDIUM">Medium</option>
+                            <option value="HIGH">High</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-3">
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Deadline</label>
+                        <input type="date" formControlName="deadline" class="w-full border rounded px-2 py-1 text-sm">
+                    </div>
+                    <div class="md:col-span-2">
+                        <button type="submit" [disabled]="subTaskForm.invalid"
+                            class="w-full bg-green-500 hover:bg-green-600 text-white text-sm font-bold py-1 px-2 rounded disabled:opacity-50">
+                            Add
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Subtasks List -->
+            <div class="space-y-3">
+                <div *ngFor="let subtask of subTasks"
+                    class="flex items-center justify-between p-3 bg-white border rounded hover:bg-gray-50 transition">
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" [checked]="subtask.status === 'COMPLETED'"
+                            (change)="updateSubTaskStatus(subtask, $any($event.target).checked ? 'COMPLETED' : 'PENDING')"
+                            class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                        <span [class.line-through]="subtask.status === 'COMPLETED'" class="text-gray-800">{{
+                            subtask.title }}</span>
+                    </div>
+                    <div class="flex items-center gap-4 text-sm">
+                        <span class="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">{{ subtask.priority
+                            }}</span>
+                        <span class="text-gray-500 text-xs">{{ subtask.deadline | date:'shortDate' }}</span>
+                        <button (click)="deleteSubTask(subtask)" class="text-red-500 hover:text-red-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div *ngIf="subTasks.length === 0" class="text-center text-gray-500 text-sm py-4">
+                    No subtasks yet.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

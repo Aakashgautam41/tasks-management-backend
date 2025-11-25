@@ -1,0 +1,4 @@
+com/example/tasks_management_backend/controller/AuthControllerIntegrationTest.class
+com/example/tasks_management_backend/service/TaskServiceTest.class
+com/example/tasks_management_backend/TasksManagementBackendApplicationTests.class
+com/example/tasks_management_backend/controller/TaskControllerIntegrationTest.class

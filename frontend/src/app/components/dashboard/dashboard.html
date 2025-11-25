@@ -1,0 +1,113 @@
+<div class="min-h-screen bg-gray-50">
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold text-gray-800">Task Manager</h1>
+                </div>
+                <div class="flex items-center">
+                    <button (click)="authService.logout()" routerLink="/login"
+                        class="text-gray-600 hover:text-gray-900">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Actions & Filters -->
+        <div class="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <a routerLink="/tasks/new"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow transition">
+                + New Task
+            </a>
+
+            <div class="flex gap-2">
+                <select [(ngModel)]="priority" (change)="onFilterChange()"
+                    class="border rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">All Priorities</option>
+                    <option value="LOW">Low</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="HIGH">High</option>
+                </select>
+
+                <select [(ngModel)]="status" (change)="onFilterChange()"
+                    class="border rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">All Statuses</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="IN_PROGRESS">In Progress</option>
+                    <option value="COMPLETED">Completed</option>
+                    <option value="CANCELLED">Cancelled</option>
+                </select>
+
+                <select [(ngModel)]="sortBy" (change)="onFilterChange()"
+                    class="border rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="deadline">Sort by Deadline</option>
+                    <option value="priority">Sort by Priority</option>
+                    <option value="createdAt">Sort by Created Date</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Task Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div *ngFor="let task of tasks"
+                class="bg-white rounded-lg shadow hover:shadow-md transition duration-200 p-6 border border-gray-100">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900 truncate" [title]="task.title">
+                        <a [routerLink]="['/tasks', task.id]" class="hover:text-blue-600">{{ task.title }}</a>
+                    </h3>
+                    <div class="flex gap-2">
+                        <span [class]="'px-2 py-1 text-xs font-medium rounded-full ' + getPriorityColor(task.priority)">
+                            {{ task.priority }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="flex items-center justify-between text-sm text-gray-500 mb-2">
+                        <span>Status:</span>
+                        <span [class]="'px-2 py-0.5 rounded text-xs font-medium ' + getStatusColor(task.status)">
+                            {{ task.status.replace('_', ' ') }}
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm text-gray-500">
+                        <span>Deadline:</span>
+                        <span
+                            [class.text-red-600]="task.deadline && (task.deadline | date:'yyyy-MM-dd')! < ('' | date:'yyyy-MM-dd')!">
+                            {{ task.deadline | date:'mediumDate' }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 mt-4 pt-4 border-t border-gray-100">
+                    <a [routerLink]="['/tasks', task.id, 'edit']"
+                        class="text-blue-600 hover:text-blue-800 text-sm font-medium">Edit</a>
+                    <button (click)="deleteTask(task.id!)"
+                        class="text-red-600 hover:text-red-800 text-sm font-medium">Delete</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="tasks.length === 0" class="text-center py-12">
+            <p class="text-gray-500 text-lg">No tasks found matching your criteria.</p>
+        </div>
+
+        <!-- Pagination -->
+        <div class="mt-8 flex justify-center gap-2" *ngIf="totalPages > 1">
+            <button (click)="onPageChange(page - 1)" [disabled]="page === 0"
+                class="px-4 py-2 border rounded text-gray-600 hover:bg-gray-50 disabled:opacity-50">
+                Previous
+            </button>
+            <span class="px-4 py-2 text-gray-600">
+                Page {{ page + 1 }} of {{ totalPages }}
+            </span>
+            <button (click)="onPageChange(page + 1)" [disabled]="page === totalPages - 1"
+                class="px-4 py-2 border rounded text-gray-600 hover:bg-gray-50 disabled:opacity-50">
+                Next
+            </button>
+        </div>
+    </main>
+</div>
