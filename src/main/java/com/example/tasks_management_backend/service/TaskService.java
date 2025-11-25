@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -59,9 +60,20 @@ public class TaskService {
         existingTask.setStatus(task.getStatus());
 
         if (task.getSubtasks() != null) {
+            List<Long> incomingIds = task.getSubtasks().stream()
+                    .map(SubTask::getId)
+                    .filter(Objects::nonNull)
+                    .toList();
+
+            existingTask.getSubtasks().removeIf(existingSubTask -> existingSubTask.getId() != null
+                    && !incomingIds.contains(existingSubTask.getId()));
+        } else {
+            existingTask.getSubtasks().clear();
+        }
+
+        if (task.getSubtasks() != null) {
             for (SubTask incomingSubTask : task.getSubtasks()) {
                 if (incomingSubTask.getId() != null) {
-                    // Update existing subtask
                     existingTask.getSubtasks().stream()
                             .filter(st -> st.getId().equals(incomingSubTask.getId()))
                             .findFirst()
@@ -72,7 +84,6 @@ public class TaskService {
                                 existingSubTask.setStatus(incomingSubTask.getStatus());
                             });
                 } else {
-                    // Add new subtask
                     existingTask.addSubTask(incomingSubTask);
                 }
             }
