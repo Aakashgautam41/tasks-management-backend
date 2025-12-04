@@ -28,11 +28,14 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final SubTaskRepository subTaskRepository;
     private final UserService userService;
+    private final KafkaProducerService kafkaProducerService;
 
-    public TaskService(TaskRepository taskRepository, SubTaskRepository subTaskRepository, UserService userService) {
+    public TaskService(TaskRepository taskRepository, SubTaskRepository subTaskRepository, UserService userService,
+            KafkaProducerService kafkaProducerService) {
         this.taskRepository = taskRepository;
         this.subTaskRepository = subTaskRepository;
         this.userService = userService;
+        this.kafkaProducerService = kafkaProducerService;
     }
 
     @CachePut(value = "tasks", key = "#task.id")
@@ -42,7 +45,9 @@ public class TaskService {
         if (task.getSubtasks() != null) {
             task.getSubtasks().forEach(st -> st.setParentTask(task));
         }
-        return taskRepository.save(task);
+        Task savedTask = taskRepository.save(task);
+        kafkaProducerService.sendTaskEvent("task-created", savedTask.getTitle());
+        return savedTask;
     }
 
     @Transactional
