@@ -7,25 +7,35 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ses.SesClient;
+import software.amazon.awssdk.services.sns.SnsClient;
 
 @Configuration
 public class AwsConfig {
 
-    @Value("${aws.accessKeyId}")
-    private String accessKeyId;
+        @Value("${aws.accessKeyId}")
+        private String accessKeyId;
 
-    @Value("${aws.secretAccessKey}")
-    private String secretAccessKey;
+        @Value("${aws.secretAccessKey}")
+        private String secretAccessKey;
 
-    @Value("${aws.region}")
-    private String region;
+        @Value("${aws.region}")
+        private String region;
 
-    @Bean
-    public SesClient sesClient() {
-        return SesClient.builder()
-                .region(Region.of(region))
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(accessKeyId, secretAccessKey)))
-                .build();
-    }
+        @Bean
+        public SesClient sesClient() {
+                return SesClient.builder()
+                                .region(Region.of(region))
+                                .credentialsProvider(StaticCredentialsProvider.create(
+                                                AwsBasicCredentials.create(accessKeyId, secretAccessKey)))
+                                .build();
+        }
+
+        @Bean
+        public SnsClient snsClient() {
+                return SnsClient.builder()
+                                .region(Region.of(region))
+                                .credentialsProvider(StaticCredentialsProvider.create(
+                                                AwsBasicCredentials.create(accessKeyId, secretAccessKey)))
+                                .build();
+        }
 }

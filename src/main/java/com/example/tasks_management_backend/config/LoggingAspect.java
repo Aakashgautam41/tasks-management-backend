@@ -12,21 +12,26 @@ public class LoggingAspect {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    // Pointcut to match all methods in TaskService
-    @Pointcut("execution(* com.example.tasks_management_backend.service.TaskService.*(..))")
-    public void taskServiceMethods() {}
+    // Pointcut to match Controller, Service, and Repository layers, excluding
+    // JwtAuthenticationFilter
+    @Pointcut("(execution(* com.example.tasks_management_backend.controller..*(..)) || " +
+            "execution(* com.example.tasks_management_backend.service..*(..)) || " +
+            "execution(* com.example.tasks_management_backend.repository..*(..))) && " +
+            "!execution(* com.example.tasks_management_backend.service.JwtAuthenticationFilter.*(..))")
+    public void applicationPackagePointcut() {
+    }
 
-    @Before("taskServiceMethods()")
+    @Before("applicationPackagePointcut()")
     public void logBefore(JoinPoint joinPoint) {
         logger.info("Entering method: {} with args {}", joinPoint.getSignature(), joinPoint.getArgs());
     }
 
-    @AfterReturning(value = "taskServiceMethods()", returning = "result")
+    @AfterReturning(value = "applicationPackagePointcut()", returning = "result")
     public void logAfterReturning(JoinPoint joinPoint, Object result) {
         logger.info("Method {} returned: {}", joinPoint.getSignature(), result);
     }
 
-    @AfterThrowing(value = "taskServiceMethods()", throwing = "ex")
+    @AfterThrowing(value = "applicationPackagePointcut()", throwing = "ex")
     public void logAfterThrowing(JoinPoint joinPoint, Exception ex) {
         logger.error("Method {} thrown exception: {}", joinPoint.getSignature(), ex.getMessage());
     }

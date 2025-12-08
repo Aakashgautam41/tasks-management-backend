@@ -28,14 +28,14 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final SubTaskRepository subTaskRepository;
     private final UserService userService;
-    private final KafkaProducerService kafkaProducerService;
+    private final SnsService snsService;
 
     public TaskService(TaskRepository taskRepository, SubTaskRepository subTaskRepository, UserService userService,
-            KafkaProducerService kafkaProducerService) {
+            SnsService snsService) {
         this.taskRepository = taskRepository;
         this.subTaskRepository = subTaskRepository;
         this.userService = userService;
-        this.kafkaProducerService = kafkaProducerService;
+        this.snsService = snsService;
     }
 
     @CachePut(value = "tasks", key = "#task.id")
@@ -46,7 +46,11 @@ public class TaskService {
             task.getSubtasks().forEach(st -> st.setParentTask(task));
         }
         Task savedTask = taskRepository.save(task);
-        kafkaProducerService.sendTaskEvent("task-created", savedTask.getTitle());
+
+        if (savedTask.getPriority() == Task.Priority.HIGH) {
+            snsService.publishTaskCreatedEvent(savedTask);
+        }
+
         return savedTask;
     }
 
@@ -72,11 +76,7 @@ public class TaskService {
 
             existingTask.getSubtasks().removeIf(existingSubTask -> existingSubTask.getId() != null
                     && !incomingIds.contains(existingSubTask.getId()));
-        } else {
-            existingTask.getSubtasks().clear();
-        }
 
-        if (task.getSubtasks() != null) {
             for (SubTask incomingSubTask : task.getSubtasks()) {
                 if (incomingSubTask.getId() != null) {
                     existingTask.getSubtasks().stream()
@@ -92,9 +92,17 @@ public class TaskService {
                     existingTask.addSubTask(incomingSubTask);
                 }
             }
+        } else {
+            existingTask.getSubtasks().clear();
         }
 
-        return taskRepository.save(existingTask);
+        Task updatedTask = taskRepository.save(existingTask);
+
+        if (updatedTask.getPriority() == Task.Priority.HIGH) {
+            snsService.publishTaskCreatedEvent(updatedTask);
+        }
+
+        return updatedTask;
     }
 
     public Task getTask(Long id) {
