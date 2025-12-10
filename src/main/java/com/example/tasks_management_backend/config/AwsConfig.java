@@ -38,4 +38,13 @@ public class AwsConfig {
                                                 AwsBasicCredentials.create(accessKeyId, secretAccessKey)))
                                 .build();
         }
+
+        @Bean
+        public software.amazon.awssdk.services.s3.S3Client s3Client() {
+                return software.amazon.awssdk.services.s3.S3Client.builder()
+                                .region(Region.of(region))
+                                .credentialsProvider(StaticCredentialsProvider.create(
+                                                AwsBasicCredentials.create(accessKeyId, secretAccessKey)))
+                                .build();
+        }
 }

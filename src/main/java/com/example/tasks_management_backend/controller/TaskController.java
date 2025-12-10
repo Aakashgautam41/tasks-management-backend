@@ -14,6 +14,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -110,6 +111,18 @@ public class TaskController {
         try {
             taskService.deleteTask(id);
             return ResponseEntity.ok(new ApiResponse<>(true, 200, "Task deleted successfully", null));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>(false, 404, "Task not found", null));
+        }
+    }
+
+    @PostMapping(value = "/{id}/attachment", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<Task>> uploadAttachment(@PathVariable Long id,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            Task updatedTask = taskService.uploadAttachment(id, file);
+            return ResponseEntity.ok(new ApiResponse<>(true, 200, "Attachment uploaded successfully", updatedTask));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ApiResponse<>(false, 404, "Task not found", null));

@@ -26,6 +26,9 @@ public class Task {
     @Enumerated(EnumType.STRING)
     private Priority priority;
 
+    @Column(name = "attachment_url")
+    private String attachmentUrl;
+
     @FutureOrPresent(message = "Deadline cannot be in the past")
     private LocalDate deadline;
 
@@ -76,6 +79,14 @@ public class Task {
 
     public void setPriority(Priority priority) {
         this.priority = priority;
+    }
+
+    public String getAttachmentUrl() {
+        return attachmentUrl;
+    }
+
+    public void setAttachmentUrl(String attachmentUrl) {
+        this.attachmentUrl = attachmentUrl;
     }
 
     public LocalDate getDeadline() {

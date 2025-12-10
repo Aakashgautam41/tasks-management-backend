@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import org.springframework.web.multipart.MultipartFile;
 import java.util.Optional;
 
 @Service
@@ -29,13 +30,17 @@ public class TaskService {
     private final SubTaskRepository subTaskRepository;
     private final UserService userService;
     private final SnsService snsService;
+    // private final KafkaProducerService kafkaProducerService;
+    private final S3Service s3Service;
 
     public TaskService(TaskRepository taskRepository, SubTaskRepository subTaskRepository, UserService userService,
-            SnsService snsService) {
+            SnsService snsService, S3Service s3Service /* , KafkaProducerService kafkaProducerService */) {
         this.taskRepository = taskRepository;
         this.subTaskRepository = subTaskRepository;
         this.userService = userService;
         this.snsService = snsService;
+        this.s3Service = s3Service;
+        // this.kafkaProducerService = kafkaProducerService;
     }
 
     @CachePut(value = "tasks", key = "#task.id")
@@ -50,6 +55,7 @@ public class TaskService {
         if (savedTask.getPriority() == Task.Priority.HIGH) {
             snsService.publishTaskCreatedEvent(savedTask);
         }
+        // kafkaProducerService.sendTaskEvent("task-created", savedTask);
 
         return savedTask;
     }
@@ -204,6 +210,18 @@ public class TaskService {
                 .orElseThrow(() -> new EntityNotFoundException("SubTask not found with id: " + subTaskId));
         validateTaskOwnership(subTask.getParentTask());
         subTaskRepository.deleteById(subTaskId);
+    }
+
+    public Task uploadAttachment(Long taskId, MultipartFile file) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new EntityNotFoundException("Task not found with id: " + taskId));
+
+        // Security check: ensure current user owns the task
+        validateTaskOwnership(task);
+
+        String attachmentUrl = s3Service.uploadFile(file);
+        task.setAttachmentUrl(attachmentUrl);
+        return taskRepository.save(task);
     }
 
     private void validateTaskOwnership(Task task) {
