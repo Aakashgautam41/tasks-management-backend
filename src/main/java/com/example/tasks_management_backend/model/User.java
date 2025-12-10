@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
@@ -23,7 +24,8 @@ public class User {
 
     @NotBlank
     @Column(nullable = false)
-    private String password; // Store the hashed password only
+    @JsonIgnore
+    private String password;
 
     @Email
     private String email;
