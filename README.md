@@ -325,27 +325,3 @@ The `docker-compose.yml` provides the following services:
 | `aws.s3.bucketName` | S3 bucket for attachments | — |
 | `aws.ses.sourceEmail` | Verified SES sender email | — |
 | `aws.sns.topicArn` | SNS topic ARN for alerts | — |
-
----
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-## License
-
-This project is open source and available under the [MIT License](LICENSE).
-
----
-
-## Contact
-
-**Aakash Gautam** — [@Aakashgautam41](https://github.com/Aakashgautam41)
-
-Project Link: [https://github.com/Aakashgautam41/tasks-management-backend](https://github.com/Aakashgautam41/tasks-management-backend)
